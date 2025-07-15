@@ -6,13 +6,13 @@ import { QuestionForm } from '../components/question-form'
 import { QuestionsList } from '@/components/questions-list'
 
 type RoomParams = {
-    id: string
+    roomId: string
 }
 
 export function Room() {
     const params = useParams<RoomParams>()
 
-    if (!params.id) {
+    if (!params.roomId) {
         return <Navigate replace to="/" />
     }
 
@@ -27,7 +27,7 @@ export function Room() {
                                 Voltar ao Início
                             </Button>
                         </Link>
-                        <Link to={`/room/${params.id}/audio`}>
+                        <Link to={`/room/${params.roomId}/audio`}>
                             <Button className="flex items-center gap-2" variant="secondary">
                                 <Radio className="size-4" />
                                 Gravar Áudio
@@ -43,10 +43,10 @@ export function Room() {
                 </div>
 
                 <div className="mb-8">
-                    <QuestionForm roomId={params.id} />
+                    <QuestionForm roomId={params.roomId} />
                 </div>
 
-                <QuestionsList roomId={params.id} />
+                <QuestionsList roomId={params.roomId} />
 
             </div>
         </div>

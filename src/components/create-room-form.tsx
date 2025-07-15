@@ -52,7 +52,7 @@ export function CreateRoomForm() {
                     Cariar sala
                 </CardTitle>
                 <CardDescription>
-                    Creie uma nova sala para começar a fazer perguntas e receber respostas da I.A.
+                    Crie uma nova sala para começar a fazer perguntas e receber respostas da I.A.
                 </CardDescription>
             </CardHeader>
             <CardContent>

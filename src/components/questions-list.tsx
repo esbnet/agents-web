@@ -1,5 +1,5 @@
-import { useRoomQuestions } from "@/http/use-room-questions";
 import { QuestionItem } from "./question-item";
+import { useRoomQuestions } from "@/http/use-room-questions";
 
 export function QuestionsList({ roomId }: { roomId: string }) {
 
@@ -14,7 +14,6 @@ export function QuestionsList({ roomId }: { roomId: string }) {
             </div>
 
             {data?.map((question) => {
-                console.log("question =>>>>>>>>>>>>>", question)
                 return (
                     <QuestionItem
                         key={question.id}

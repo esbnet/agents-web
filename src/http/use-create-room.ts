@@ -9,7 +9,7 @@ export function useCreateRoom() {
 
     return useMutation({
         mutationFn: async ( data:  Omit<RoomProps, "id"| "createdAt" | "questionCount">  ) => {
-            const response = await fetch(`${API_URL}/rooms"`,{
+            const response = await fetch(`${API_URL}/rooms`,{
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"

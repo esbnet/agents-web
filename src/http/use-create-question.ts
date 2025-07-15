@@ -1,33 +1,87 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import type { QuestionProps } from "./types/question";
 
-const API_URL = import.meta.env.VITE_API_URL
+type CreateQuestionData = Pick<QuestionProps, "question">
 
 export function useCreateQuestion(roomId: string) {
-    const queryClient = useQueryClient();
+    const queryClient = useQueryClient()
 
     return useMutation({
-        mutationFn: async ( data :  Pick<QuestionProps, "question">  ) => {
-            const response = await fetch(`${API_URL}/rooms/${roomId}/questions`,{
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(data),                
-            })            
-
-            if (!response.ok) {
-                throw new Error("Failed to create question");
-            }
-            return await response.json() as Pick<QuestionProps, "id">;
+        mutationFn: async (data: CreateQuestionData) => {
+            const response = await fetch(
+                `http://localhost:3333/rooms/${roomId}/questions`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                }
+            )
+            const result: QuestionProps = await response.json()
+            return result
         },
 
-        onSuccess: () => {
-            queryClient.invalidateQueries({
-                queryKey: ["get-questions", roomId]
-            });
+        onMutate({ question }) {
+            const questions = queryClient.getQueryData<QuestionProps[]>([
+                'get-questions',
+                roomId,
+            ])
 
-        }
-    });
+            const questionsArray = questions ?? []
+
+            const newQuestion = {
+                id: crypto.randomUUID(),
+                roomId,
+                question,
+                answer: null,
+                createdAt: new Date().toISOString(),
+                isGeneratingAnswer: true,
+            }
+
+            queryClient.setQueryData<QuestionProps[]>(
+                ['get-questions', roomId],
+                [newQuestion, ...questionsArray]
+            )
+
+            return { newQuestion, questions }
+        },
+
+        onSuccess(data, _variables, context) {
+            queryClient.setQueryData<QuestionProps[]>(
+                ['get-questions', roomId],
+                (questions) => {
+                    if (!questions) {
+                        return questions
+                    }
+
+                    if (!context.newQuestion) {
+                        return questions
+                    }
+
+                    return questions.map((question) => {
+                        if (question.id === context.newQuestion.id) {
+                            return {
+                                ...context.newQuestion,
+                                id: data.id,
+                                answer: data.answer,
+                                isGeneratingAnswer: false
+                            }
+                        }
+                        return question
+                    })
+                }
+            )
+        },
+
+        onError(_error, _variables, context) {
+            if (context?.questions) {
+                queryClient.setQueryData<QuestionProps[]>(
+                    ['get-questions', roomId],
+                    context.questions
+                )
+            }
+        },
+    })
 }
